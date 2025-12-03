@@ -1,0 +1,15 @@
+{
+  "name": "@meiji/dev-utils",
+  "version": "1.0.0",
+  "description": "Environment validation utilities for frontend projects",
+  "bin": {
+    "meiji-env-check": "./bin/check-env.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}
