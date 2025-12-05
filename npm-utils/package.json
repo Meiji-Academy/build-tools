@@ -1,5 +1,5 @@
 {
-  "name": "@meiji-academy/dev-utils",
+  "name": "@meiji-academy/build-tools",
   "version": "1.0.0",
   "description": "Environment validation utilities for frontend projects",
   "bin": {

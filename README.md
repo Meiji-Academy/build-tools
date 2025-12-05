@@ -30,7 +30,7 @@ A CLI tool to validate the local `.npmrc` configuration or CI environment variab
 Install as a dev dependency and add to your `preinstall` script.
 
 ```
-npm install --save-dev @meiji-academy/dev-utils
+npm install --save-dev @meiji-academy/build-tools
 ```
 
 **package.json configuration:**
