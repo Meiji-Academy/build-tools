@@ -19,8 +19,8 @@ function run() {
 }
 
 function validateCI() {
-    if (!process.env.GITHUB_TOKEN) {
-        console.error(`${RED}❌ CI Error: GITHUB_TOKEN is missing.${RESET}`);
+    if (!process.env.GITHUB_MEIJI_PACKAGES_TOKEN) {
+        console.error(`${RED}❌ CI Error: GITHUB_MEIJI_PACKAGES_TOKEN is missing.${RESET}`);
         process.exit(1);
     }
     console.log(`${GREEN}✔ CI Environment validated.${RESET}`);
@@ -56,7 +56,7 @@ ${RED}╔═══════════════════════�
 ║ Required Action:                                               ║
 ║ 1. Generate PAT (read:packages)                                ║
 ║ 2. Login:                                                      ║
-║    npm login --scope=@meiji --registry=https://npm.pkg.github.com ║
+║    npm login --scope=@meiji-academy --registry=https://npm.pkg.github.com ║
 ╚════════════════════════════════════════════════════════════════╝${RESET}
 `);
 }

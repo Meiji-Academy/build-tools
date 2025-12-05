@@ -25,8 +25,8 @@ class EnvironmentCheckPlugin : Plugin<Project> {
     }
 
     private fun validateCIEnvironment() {
-        if (System.getenv("GITHUB_TOKEN").isNullOrEmpty()) {
-            throw GradleException("Build Failed: GITHUB_TOKEN environment variable is missing in CI.")
+        if (System.getenv("GITHUB_MEIJI_PACKAGES_TOKEN").isNullOrEmpty()) {
+            throw GradleException("Build Failed: GITHUB_MEIJI_PACKAGES_TOKEN environment variable is missing in CI.")
         }
     }
 

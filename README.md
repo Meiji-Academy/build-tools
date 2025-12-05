@@ -1,6 +1,6 @@
-# Build Tools
+# Meiji Academy Build Tools
 
-This repository contains shared build utilities and plugins used across Meiji development projects to ensure consistent environment configurations and build reproducibility.
+This repository contains shared build utilities and plugins used across Meiji Academy development projects to ensure consistent environment configurations and build reproducibility.
 
 ## Components
 
@@ -30,7 +30,7 @@ A CLI tool to validate the local `.npmrc` configuration or CI environment variab
 Install as a dev dependency and add to your `preinstall` script.
 
 ```
-npm install --save-dev @meiji/dev-utils
+npm install --save-dev @meiji-academy/dev-utils
 ```
 
 **package.json configuration:**
@@ -43,8 +43,8 @@ npm install --save-dev @meiji/dev-utils
 
 **Requirements:**
 
-- **CI:** `GITHUB_TOKEN` environment variable must be set.
-- **Local:** User must be authenticated via `npm login` against the GitHub Package Registry.
+- **CI:** `GITHUB_MEIJI_PACKAGES_TOKEN` environment variable must be set.
+- **Local:** User must be authenticated via `npm login` against the GitHub Package Registry with scope `@meiji-academy`.
 
 ## License
 
