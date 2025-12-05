@@ -4,6 +4,8 @@
 *.iml
 *.ipr
 out/
+
+# Gradle Build Output (Standard)
 build/
 !**/src/**/build/
 
@@ -38,8 +40,3 @@ coverage/
 .Trashes
 ehthumbs.db
 Thumbs.db
-# Ignore Gradle project-specific cache directory
-.gradle
-
-# Ignore Gradle build output directory
-build

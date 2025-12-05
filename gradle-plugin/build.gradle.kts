@@ -5,7 +5,7 @@ plugins {
     id("com.gradle.plugin-publish") version "1.2.1"
 }
 
-group = "com.meiji.build"
+group = "com.meijiacademy.build"
 version = "1.0.0"
 
 gradlePlugin {
@@ -13,12 +13,14 @@ gradlePlugin {
     vcsUrl.set("https://github.com/meiji-academy/build-tools")
 
     plugins {
-        create("environmentCheck") {
-            id = "com.meiji.build.environment-check"
-            implementationClass = "com.meiji.build.EnvironmentCheckPlugin"
-            displayName = "Meiji Environment Check"
-            description = "Enforces CI/CD and local environment configuration standards."
-            tags.set(listOf("build", "environment", "check", "ci", "security"))
+        create("buildTools") {
+            id = "com.meijiacademy.build.tools"
+            implementationClass = "com.meijiacademy.build.EnvironmentCheckPlugin"
+
+            displayName = "Meiji Academy Build Tools"
+            description = "Shared build utilities and environment checks for Meiji Academy projects."
+
+            tags.set(listOf("build-tools", "environment", "check", "ci", "meiji-academy"))
         }
     }
 }
