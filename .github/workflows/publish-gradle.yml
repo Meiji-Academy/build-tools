@@ -25,7 +25,44 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Extract Version
+        id: extract_version
+        run: |
+          VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}' || true)
+          
+          if [ -z "$VERSION" ]; then
+            echo "❌ Error: Could not extract version from Gradle."
+            exit 1
+          fi
+          
+          echo "Detected version from Gradle: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if version exists in Portal
+        id: check_version
+        run: |
+          PLUGIN_ID="com.meijiacademy.build.tools"
+          VERSION="${{ steps.extract_version.outputs.VERSION }}"
+          
+          echo "Checking if $PLUGIN_ID version $VERSION exists..."
+          
+          URL="https://plugins.gradle.org/plugin/$PLUGIN_ID/$VERSION"
+          
+          HTTP_STATUS=$(curl -o /dev/null -s -L -w "%{http_code}\n" "$URL")
+          
+          if [ "$HTTP_STATUS" == "200" ]; then
+             echo "✅ Version $VERSION already exists on Gradle Portal. Skipping publish."
+             echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
+          else
+             echo "🚀 Version $VERSION not found (Status $HTTP_STATUS). Publishing..."
+             echo "PUBLISH_NEEDED=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish to Gradle Plugin Portal
+        if: steps.check_version.outputs.PUBLISH_NEEDED == 'true'
         run: ./gradlew publishPlugins
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

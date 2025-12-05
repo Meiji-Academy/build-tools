@@ -8,6 +8,16 @@ plugins {
 group = "com.meijiacademy.build"
 version = "1.0.0"
 
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation(gradleApi())
+    implementation(localGroovy())
+}
+
 gradlePlugin {
     website.set("https://github.com/meiji-academy/build-tools")
     vcsUrl.set("https://github.com/meiji-academy/build-tools")
@@ -23,8 +33,4 @@ gradlePlugin {
             tags.set(listOf("build-tools", "environment", "check", "ci", "meiji-academy"))
         }
     }
-}
-
-repositories {
-    mavenCentral()
 }

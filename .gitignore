@@ -5,10 +5,6 @@
 *.ipr
 out/
 
-# Gradle Build Output (Standard)
-build/
-!**/src/**/build/
-
 # VS Code
 .vscode/
 *.code-workspace
@@ -18,6 +14,9 @@ build/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
+
+build/
+!**/src/**/build/
 
 # Kotlin
 .kotlin/
