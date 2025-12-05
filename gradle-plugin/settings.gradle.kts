@@ -1,1 +1,1 @@
-rootProject.name = "meiji-environment-check"
+rootProject.name = "meiji-academy-build-tools"

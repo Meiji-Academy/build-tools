@@ -13,7 +13,7 @@ Add the following to your Spring Boot `build.gradle` or `build.gradle.kts`:
 
 ```
 plugins {
-    id("com.meijiacademy.build.tools") version "1.0.1"
+    id("com.meijiacademy.build.tools") version "1.0.0"
 }
 ```
 
