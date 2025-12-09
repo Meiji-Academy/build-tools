@@ -53,7 +53,7 @@ class EnvironmentCheckPlugin : Plugin<Project> {
             ║                                                                ║
             ║  $bold Missing GitHub Credentials! $reset $red                                   ║
             ║                                                                ║
-            ║  1. Generate a token (read:packages):                          ║
+            ║  1. Generate a token (write:packages):                          ║
             ║     https://github.com/settings/tokens                         ║
             ║                                                                ║
             ║  2. Add to ~/.gradle/gradle.properties:                        ║

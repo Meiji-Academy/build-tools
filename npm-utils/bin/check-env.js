@@ -54,7 +54,7 @@ ${RED}╔═══════════════════════�
 ║ Reason: ${reason.padEnd(54)} ║
 ║                                                                ║
 ║ Required Action:                                               ║
-║ 1. Generate PAT (read:packages)                                ║
+║ 1. Generate PAT (write:packages)                                ║
 ║ 2. Login:                                                      ║
 ║    npm login --scope=@meiji-academy --registry=https://npm.pkg.github.com ║
 ╚════════════════════════════════════════════════════════════════╝${RESET}
