@@ -9,11 +9,11 @@ This repository contains shared build utilities and plugins used across Meiji Ac
 Enforces the presence of required credentials for GitHub Packages before attempting dependency resolution.
 
 **Usage:**
-Add the following to your Spring Boot `build.gradle` or `build.gradle.kts`:
+Add the following to your Spring Boot `build.gradle` or `build.gradle.kts`. Using `latest.release` ensures you always get the newest version automatically (cached for 24h).
 
 ```
 plugins {
-    id("com.meijiacademy.build.tools") version "1.0.0"
+    id("com.meijiacademy.build.tools") version "latest.release"
 }
 ```
 
@@ -26,14 +26,17 @@ plugins {
 
 A CLI tool to validate the local `.npmrc` configuration or CI environment variables for frontend repositories.
 
-**Usage:**
-Install as a dev dependency and add to your `preinstall` script.
+**Installation:**
+
+Install with the `@latest` tag to ensure your `package.json` tracks the newest version.
 
 ```
-npm install --save-dev @meiji-academy/build-tools
+npm install --save-dev @meiji-academy/build-tools@latest
 ```
 
-**package.json configuration:**
+**Usage (package.json):**
+
+Add it to your scripts to ensure the environment is checked before every install.
 
 ```
 "scripts": {
