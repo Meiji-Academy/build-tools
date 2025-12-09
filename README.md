@@ -19,7 +19,7 @@ plugins {
 
 **Requirements:**
 
-- **CI:** `GITHUB_MEIJI_PACKAGES_TOKEN` environment variable must be set.
+- **CI:** `MEIJI_ACADEMY_PACKAGES_TOKEN` environment variable must be set.
 - **Local:** `~/.gradle/gradle.properties` must contain `gpr.user` and `gpr.key`.
 
 ### 2. NPM Utilities (Frontend)
@@ -46,7 +46,7 @@ Add it to your scripts to ensure the environment is checked before every install
 
 **Requirements:**
 
-- **CI:** `GITHUB_MEIJI_PACKAGES_TOKEN` environment variable must be set.
+- **CI:** `MEIJI_ACADEMY_PACKAGES_TOKEN` environment variable must be set.
 - **Local:** User must be authenticated via `npm login` against the GitHub Package Registry with scope `@meiji-academy`.
 
 ## License

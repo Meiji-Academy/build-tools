@@ -25,8 +25,8 @@ class EnvironmentCheckPlugin : Plugin<Project> {
     }
 
     private fun validateCIEnvironment() {
-        if (System.getenv("GITHUB_MEIJI_PACKAGES_TOKEN").isNullOrEmpty()) {
-            throw GradleException("Build Failed: GITHUB_MEIJI_PACKAGES_TOKEN environment variable is missing in CI.")
+        if (System.getenv("MEIJI_ACADEMY_PACKAGES_TOKEN").isNullOrEmpty()) {
+            throw GradleException("Build Failed: MEIJI_ACADEMY_PACKAGES_TOKEN environment variable is missing in CI.")
         }
     }
 
@@ -53,7 +53,7 @@ class EnvironmentCheckPlugin : Plugin<Project> {
             ║                                                                ║
             ║  $bold Missing GitHub Credentials! $reset $red                                   ║
             ║                                                                ║
-            ║  1. Generate a token (write:packages):                          ║
+            ║  1. Generate a token (read:packages):                          ║
             ║     https://github.com/settings/tokens                         ║
             ║                                                                ║
             ║  2. Add to ~/.gradle/gradle.properties:                        ║
