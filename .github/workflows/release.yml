@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Checkout Code
@@ -22,11 +21,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Set up Node
+      - name: Set up Node (Public NPM)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@meiji-academy'
 
       - name: Extract Version from Tag
         id: get_version
@@ -45,7 +45,7 @@ jobs:
           HTTP_STATUS=$(curl -o /dev/null -s -L -w "%{http_code}\n" "$URL")
           
           if [ "$HTTP_STATUS" == "200" ]; then
-             echo "✅ Version $VERSION already exists on Gradle Portal. Skipping publish."
+             echo "✅ Version $VERSION already exists on Gradle Portal."
              echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
           else
              echo "🚀 Version $VERSION not found. Publishing..."
@@ -67,16 +67,15 @@ jobs:
         id: check_npm
         working-directory: ./npm-utils
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.MEIJI_ACADEMY_PACKAGES_TOKEN }}
           VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
-          echo "Checking registry for $PACKAGE_NAME @ $VERSION"
+          echo "Checking npmjs.org for $PACKAGE_NAME @ $VERSION"
           
           PUBLISHED_VERSION=$(npm view "$PACKAGE_NAME@$VERSION" version 2>/dev/null || echo "not_found")
           
           if [ "$PUBLISHED_VERSION" == "$VERSION" ]; then
-            echo "✅ Version $VERSION already exists on NPM. Skipping publish."
+            echo "✅ Version $VERSION already exists on NPM."
             echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
           else
             echo "🚀 Version $VERSION not found. Publishing..."
@@ -87,9 +86,9 @@ jobs:
         if: steps.check_npm.outputs.PUBLISH_NEEDED == 'true'
         working-directory: ./npm-utils
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.MEIJI_ACADEMY_PACKAGES_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
           
           npm install
-          npm publish
+          npm publish --access public
