@@ -1,6 +1,6 @@
 {
   "name": "@meiji-academy/build-tools",
-  "version": "1.0.2",
+  "version": "0.0.0-PLACEHOLDER",
   "description": "Environment validation utilities for frontend projects",
   "bin": {
     "meiji-env-check": "./bin/check-env.js"
