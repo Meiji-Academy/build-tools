@@ -6,16 +6,20 @@ This repository contains shared build utilities and plugins used across Meiji Ac
 
 ### 1. Gradle Plugin (Backend)
 
-Enforces the presence of required credentials for GitHub Packages before attempting dependency resolution.
+### 1. Gradle Plugin (Backend)
+
+Enforces the presence of required credentials.
 
 **Usage:**
-Add the following to your Spring Boot `build.gradle` or `build.gradle.kts`. Using `latest.release` ensures you always get the newest version automatically (cached for 24h).
+Add the following to your Spring Boot `build.gradle.kts`.
+We recommend pinning a specific version for build reproducibility.
 
-```
+```kotlin
 plugins {
-    id("com.meijiacademy.build.tools") version "latest.release"
+    id("com.meijiacademy.build.tools") version "1.0.0"
 }
 ```
+You can rely on Dependabot to update this version via Pull Requests.
 
 **Requirements:**
 

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.meijiacademy.build"
-version = "1.0.2"
+version = System.getenv("PROJECT_VERSION") ?: "0.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
