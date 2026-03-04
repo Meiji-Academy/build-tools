@@ -2,6 +2,10 @@
   "name": "@meiji-academy/build-tools",
   "version": "0.0.0-PLACEHOLDER",
   "description": "Environment validation utilities for frontend projects",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Meiji-Academy/build-tools.git"
+  },
   "bin": {
     "meiji-env-check": "bin/check-env.js"
   },
