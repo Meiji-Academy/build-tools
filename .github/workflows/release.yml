@@ -27,8 +27,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@meiji-academy'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Extract Version from Tag
         id: get_version
@@ -91,4 +92,5 @@ jobs:
           npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
           
           npm install
+          rm -f .npmrc
           npm publish --access public --provenance
