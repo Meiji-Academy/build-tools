@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
+    environment: release
 
     steps:
       - name: Checkout Code
@@ -85,10 +87,8 @@ jobs:
       - name: Publish NPM Utils
         if: steps.check_npm.outputs.PUBLISH_NEEDED == 'true'
         working-directory: ./npm-utils
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
           
           npm install
-          npm publish --access public
+          npm publish --access public --provenance
