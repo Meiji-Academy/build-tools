@@ -1,0 +1,30 @@
+name: Cleanup GitHub Packages
+
+on:
+  workflow_call:
+    inputs:
+      package_name:
+        required: true
+        type: string
+        description: "The name of the package to clean"
+      package_type:
+        required: false
+        type: string
+        default: "container"
+        description: "Package type (npm, maven, docker, container, etc.)"
+    secrets:
+      GH_PAT:
+        required: true
+
+jobs:
+  delete-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Everything Except Standard SemVer
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ inputs.package_name }}
+          package-type: ${{ inputs.package_type }}
+          token: ${{ secrets.GH_PAT }}
+          ignore-versions: '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$'
+          min-versions-to-keep: 1
