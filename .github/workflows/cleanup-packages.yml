@@ -6,25 +6,117 @@ on:
       package_name:
         required: true
         type: string
-        description: "The name of the package to clean"
+        description: "Package name (e.g. com.meijiacademy.api.meiji-management-system-api)"
       package_type:
         required: false
         type: string
         default: "container"
-        description: "Package type (npm, maven, docker, container, etc.)"
+        description: "Package type (container, npm, maven, etc.)"
+      retention_days:
+        required: false
+        type: number
+        default: 60
+        description: "Delete non-semver versions only when older than this many days"
+      owner:
+        required: false
+        type: string
+        default: "meiji-academy"
+        description: "GitHub org or user that owns the package (defaults to calling repo owner)"
+      owner_type:
+        required: false
+        type: string
+        default: "org"
+        description: "Either org or user"
     secrets:
       GH_PAT:
         required: true
 
 jobs:
-  delete-versions:
+  cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - name: Delete Everything Except Standard SemVer
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ inputs.package_name }}
-          package-type: ${{ inputs.package_type }}
-          token: ${{ secrets.GH_PAT }}
-          ignore-versions: '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$'
-          min-versions-to-keep: 1
+      - name: Delete package versions past retention TTL
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          OWNER: ${{ inputs.owner || github.repository_owner }}
+          OWNER_TYPE: ${{ inputs.owner_type }}
+          PACKAGE_NAME: ${{ inputs.package_name }}
+          PACKAGE_TYPE: ${{ inputs.package_type }}
+          RETENTION_DAYS: ${{ inputs.retention_days }}
+
+        run: |
+          set -euo pipefail
+
+          if [[ "$OWNER_TYPE" != "org" && "$OWNER_TYPE" != "user" ]]; then
+            echo "owner_type must be 'org' or 'user', got: $OWNER_TYPE"
+            exit 1
+          fi
+
+          cutoff_epoch=$(date -u -d "${RETENTION_DAYS} days ago" +%s)
+          
+          # URL-encode the package name safely handling dots/dashes
+          encoded_package_name=$(echo -n "$PACKAGE_NAME" | jq -sRr @uri)
+          base_path="/${OWNER_TYPE}s/${OWNER}/packages/${PACKAGE_TYPE}/${encoded_package_name}"
+
+          kept_semver=0
+          kept_recent=0
+          deleted=0
+          skipped=0
+
+          echo "Package cleanup policy"
+          echo "  owner:        ${OWNER} (${OWNER_TYPE})"
+          echo "  package:      ${PACKAGE_NAME} (${PACKAGE_TYPE})"
+          echo "  retention:    ${RETENTION_DAYS} days (delete non-semver only when older)"
+          echo "  semver tags:  kept regardless of age"
+          echo "  cutoff (UTC): $(date -u -d "@${cutoff_epoch}" '+%Y-%m-%d %H:%M:%S')"
+
+          while IFS= read -r version; do
+            [[ -z "$version" ]] && continue
+
+            id=$(echo "$version" | jq -r '.id')
+            created=$(echo "$version" | jq -r '.created_at')
+            created_epoch=$(date -d "$created" +%s)
+
+            mapfile -t tags < <(echo "$version" | jq -r '.metadata.container.tags[]? // empty' 2>/dev/null || true)
+            tags_display="${tags[*]:-<untagged>}"
+
+            is_semver=false
+            for tag in "${tags[@]}"; do
+              [[ -z "$tag" ]] && continue
+              if [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                is_semver=true
+                break
+              fi
+            done
+
+            if [[ "$is_semver" == "true" ]]; then
+              echo "KEEP semver: id=${id} tags=[${tags_display}]"
+              kept_semver=$((kept_semver + 1))
+              continue
+            fi
+
+            if [[ $created_epoch -ge $cutoff_epoch ]]; then
+              echo "KEEP recent: id=${id} created=${created} tags=[${tags_display}]"
+              kept_recent=$((kept_recent + 1))
+              continue
+            fi
+
+            echo "DELETE expired: id=${id} created=${created} tags=[${tags_display}]"
+            if gh api --method DELETE "${base_path}/versions/${id}"; then
+              deleted=$((deleted + 1))
+            else
+              echo "WARN: failed to delete version id=${id}"
+              skipped=$((skipped + 1))
+            fi
+          done < <(
+            gh api "${base_path}/versions" --paginate | jq -c '.[]'
+          )
+
+          echo ""
+          echo "Cleanup summary"
+          echo "  kept (semver):  ${kept_semver}"
+          echo "  kept (recent):  ${kept_recent}"
+          echo "  deleted:        ${deleted}"
+          echo "  failed/skipped: ${skipped}"
