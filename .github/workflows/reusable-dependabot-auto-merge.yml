@@ -1,0 +1,39 @@
+name: Reusable Dependabot Auto-Merge
+
+on:
+  workflow_call:
+    secrets:
+      PACKAGES_TOKEN:
+        required: true
+      CHAT_WEBHOOK_URL:
+        required: true
+
+jobs:
+  process-dependabot-pr:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot Metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.PACKAGES_TOKEN }}
+
+      - name: Alert on Major Update
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: |
+          TEXT="⚠️ *Dependabot Major Update Alert*\nRepo: ${{ github.repository }}\nPR: <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>\nPlease review breaking changes manually!"
+          ESCAPED_TEXT=$(echo "$TEXT" | sed 's/"/\\"/g' | sed -z 's/\n/\\n/g')
+          
+          curl -X POST -H 'Content-Type: application/json' \
+            "${{ secrets.CHAT_WEBHOOK_URL }}" \
+            -d "{\"text\": \"$ESCAPED_TEXT\"}"
+
+      - name: Auto-Merge Minor & Patch Updates
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: |
+          gh pr approve "$PR_URL"
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}

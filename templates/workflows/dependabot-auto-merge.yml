@@ -1,0 +1,16 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronized]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  call-auto-merge:
+    uses: meiji-academy/build-tools/.github/workflows/reusable-dependabot-auto-merge.yml@main
+    secrets:
+      PACKAGES_TOKEN: ${{ secrets.MEIJI_ACADEMY_PACKAGES_TOKEN }}
+      CHAT_WEBHOOK_URL: ${{ secrets.PROJECT_CHAT_WEBHOOK || secrets.ORG_DEFAULT_DEPENDENCY_CHAT_WEBHOOK }}

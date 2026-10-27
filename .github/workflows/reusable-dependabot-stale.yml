@@ -1,0 +1,75 @@
+name: Reusable Dependabot Stale Escalation
+
+on:
+  workflow_call:
+    secrets:
+      CHAT_WEBHOOK_URL:
+        required: true
+
+jobs:
+  flag-stale-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Audit Open Dependabot PRs
+        id: audit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            const NOW = new Date();
+            let staleMessage = "";
+
+            for (const pr of prs.data) {
+              if (pr.user && pr.user.login === 'dependabot[bot]') {
+                const diffDays = (NOW - new Date(pr.created_at)) / (1000 * 60 * 60 * 24);
+
+                if (diffDays >= 7) {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    labels: ['stale']
+                  });
+
+                  staleMessage += `• <${pr.html_url}|PR #${pr.number}: ${pr.title}>\n`;
+
+                  const assignees = pr.assignees.map(a => a.login);
+                  if (assignees.length > 0) {
+                    try {
+                      await github.rest.pulls.requestReviewers({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: pr.number,
+                        reviewers: assignees
+                      });
+                    } catch (e) {
+                      console.log(`Review re-request skipped for PR #${pr.number}`);
+                    }
+
+                    const mentions = assignees.map(u => `@${u}`).join(' ');
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: pr.number,
+                      body: `⚠️ **Stale Escalation**: This Dependabot PR is open for 7+ days. ${mentions} please review.`
+                    });
+                  }
+                }
+              }
+            }
+            core.setOutput('stale_prs', staleMessage);
+
+      - name: Send Google Chat Notification
+        if: ${{ steps.audit.outputs.stale_prs != '' }}
+        run: |
+          TEXT="⚠️ *Dependabot Stale Escalation (${{ github.repository }})*\nThe following PRs have been open for 7+ days:\n${{ steps.audit.outputs.stale_prs }}"
+          ESCAPED_TEXT=$(echo "$TEXT" | sed 's/"/\\"/g' | sed -z 's/\n/\\n/g')
+          
+          curl -X POST -H 'Content-Type: application/json' \
+            "${{ secrets.CHAT_WEBHOOK_URL }}" \
+            -d "{\"text\": \"$ESCAPED_TEXT\"}"
