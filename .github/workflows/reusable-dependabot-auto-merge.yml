@@ -30,7 +30,7 @@ jobs:
             -d "{\"text\": \"$ESCAPED_TEXT\"}"
 
       - name: Auto-Merge Minor & Patch Updates
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
         run: |
           gh pr approve "$PR_URL"
           gh pr merge --auto --squash "$PR_URL"
