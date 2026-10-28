@@ -1,17 +1,25 @@
 # Location: .github/dependabot.yml
 version: 2
 
+registries:
+  github-packages:
+    type: maven-repository
+    url: https://maven.pkg.github.com/meiji-academy
+    username: x-access-token
+    password: ${{ secrets.MEIJI_ACADEMY_PACKAGES_TOKEN }}
+
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "08:00"
       timezone: "Asia/Tokyo"
     target-branch: "main"
     rebase-strategy: "auto"
     open-pull-requests-limit: 10
+    registries:
+      - github-packages
     groups:
       spring-boot:
         patterns:

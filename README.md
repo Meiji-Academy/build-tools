@@ -72,12 +72,24 @@ Standardized configurations and reusable workflows for automated dependency mana
 
 1. Copy the appropriate `dependabot-*.yml` into your project's `.github/dependabot.yml`.
 2. Copy the workflows from `templates/.github/workflows/` into your project's `.github/workflows/`.
-3. Ensure the organization secret `ORG_DEFAULT_DEPENDENCY_CHAT_WEBHOOK` is configured in the **Dependabot Secrets** (or provide `PROJECT_CHAT_WEBHOOK` locally).
 
-**Important: Workflow Permissions**
-For the auto-merge workflow to function, organization or repository settings must allow GitHub Actions to manage PRs:
-- Go to **Settings → Actions → General**.
-- Under *Workflow permissions*, check **"Allow GitHub Actions to create and approve pull requests"**.
+### Required Organization Settings
+
+For the Dependabot automations to work correctly across the organization, ensure the following settings and secrets are configured at the **Organization Level**:
+
+**1. Workflow Permissions**
+- Navigate to **Settings → Actions → General**.
+- Under *Workflow permissions*, select **"Read and write permissions"** and check **"Allow GitHub Actions to create and approve pull requests"**.
+
+**2. Secrets Configuration**
+Since Dependabot runs in an isolated context, it cannot access standard Actions secrets. You must configure secrets in **both** locations:
+
+**Organization Dependabot Secrets** (`Settings → Secrets and variables → Dependabot`):
+- `ORG_DEFAULT_DEPENDENCY_CHAT_WEBHOOK`: Required for Dependabot alert routing (Stale PRs & Major Updates).
+- `MEIJI_ACADEMY_PACKAGES_TOKEN`: Required so Dependabot can fetch and update private packages from the GitHub registry.
+
+**Organization Actions Secrets** (`Settings → Secrets and variables → Actions`):
+- `MEIJI_ACADEMY_PACKAGES_TOKEN`: Required for standard CI/CD workflows to build and publish packages.
 
 ## License
 
