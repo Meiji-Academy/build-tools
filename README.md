@@ -72,7 +72,12 @@ Standardized configurations and reusable workflows for automated dependency mana
 
 1. Copy the appropriate `dependabot-*.yml` into your project's `.github/dependabot.yml`.
 2. Copy the workflows from `templates/.github/workflows/` into your project's `.github/workflows/`.
-3. Ensure the organization secret `ORG_DEFAULT_CHAT_WEBHOOK` is configured (or provide `PROJECT_CHAT_WEBHOOK` locally).
+3. Ensure the organization secret `ORG_DEFAULT_DEPENDENCY_CHAT_WEBHOOK` is configured in the **Dependabot Secrets** (or provide `PROJECT_CHAT_WEBHOOK` locally).
+
+**Important: Workflow Permissions**
+For the auto-merge workflow to function, organization or repository settings must allow GitHub Actions to manage PRs:
+- Go to **Settings → Actions → General**.
+- Under *Workflow permissions*, check **"Allow GitHub Actions to create and approve pull requests"**.
 
 ## License
 
