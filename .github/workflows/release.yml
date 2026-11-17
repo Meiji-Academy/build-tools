@@ -45,17 +45,17 @@ jobs:
           echo "Checking if $PLUGIN_ID version $VERSION exists..."
           URL="https://plugins.gradle.org/plugin/$PLUGIN_ID/$VERSION"
           
-          HTTP_STATUS=$(curl -o /dev/null -s -L -w "%{http_code}\n" "$URL")
+          HTTP_STATUS=$(curl -A "GitHub-Actions" -o /dev/null -s -L -w "%{http_code}\n" "$URL")
           
           if [ "$HTTP_STATUS" == "200" ]; then
-             echo "✅ Version $VERSION already exists on Gradle Portal."
-             echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
-          elif [ "$HTTP_STATUS" == "404" ]; then
-             echo "🚀 Version $VERSION not found. Publishing..."
-             echo "PUBLISH_NEEDED=true" >> $GITHUB_OUTPUT
+            echo "✅ Version $VERSION already exists on Gradle Portal."
+            echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
+          elif [ "$HTTP_STATUS" == "404" ] || [ "$HTTP_STATUS" == "400" ]; then
+            echo "🚀 Version $VERSION not found. Publishing..."
+            echo "PUBLISH_NEEDED=true" >> $GITHUB_OUTPUT
           else
-             echo "❌ Error: Received HTTP $HTTP_STATUS from Gradle Portal. Aborting to prevent duplicate publish."
-             exit 1
+            echo "❌ Error: Received HTTP $HTTP_STATUS from Gradle Portal. Aborting to prevent duplicate publish."
+            exit 1
           fi
 
       - name: Publish Gradle Plugin
