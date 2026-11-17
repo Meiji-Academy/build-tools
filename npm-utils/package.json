@@ -1,20 +1,22 @@
 {
   "name": "@meiji-academy/build-tools",
   "version": "0.0.0-PLACEHOLDER",
-  "description": "Environment validation utilities for frontend projects",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Meiji-Academy/build-tools.git"
-  },
+  "description": "Shared build utilities and environment checks for Meiji Academy projects.",
+  "main": "bin/check-env.js",
   "bin": {
     "meiji-env-check": "bin/check-env.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meiji-academy/build-tools.git"
+  },
+  "author": "Meiji Academy",
+  "license": "UNLICENSED",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
-  },
-  "license": "MIT"
+  }
 }
