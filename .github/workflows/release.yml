@@ -50,9 +50,12 @@ jobs:
           if [ "$HTTP_STATUS" == "200" ]; then
              echo "✅ Version $VERSION already exists on Gradle Portal."
              echo "PUBLISH_NEEDED=false" >> $GITHUB_OUTPUT
-          else
+          elif [ "$HTTP_STATUS" == "404" ]; then
              echo "🚀 Version $VERSION not found. Publishing..."
              echo "PUBLISH_NEEDED=true" >> $GITHUB_OUTPUT
+          else
+             echo "❌ Error: Received HTTP $HTTP_STATUS from Gradle Portal. Aborting to prevent duplicate publish."
+             exit 1
           fi
 
       - name: Publish Gradle Plugin
