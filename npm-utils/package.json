@@ -2,7 +2,6 @@
   "name": "@meiji-academy/build-tools",
   "version": "0.0.0-PLACEHOLDER",
   "description": "Shared build utilities and environment checks for Meiji Academy projects.",
-  "main": "bin/check-env.js",
   "bin": {
     "meiji-env-check": "bin/check-env.js"
   },
