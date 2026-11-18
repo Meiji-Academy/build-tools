@@ -27,11 +27,28 @@ function checkEnv() {
     for (const rcPath of npmrcPaths) {
         if (fs.existsSync(rcPath)) {
             const content = fs.readFileSync(rcPath, 'utf8');
-            if (content.includes('npm.pkg.github.com') && content.includes('_authToken')) {
-                hasAuth = true;
-                break;
+            const lines = content.split('\n');
+
+            for (const line of lines) {
+                if (line.includes('npm.pkg.github.com') && line.includes('_authToken=')) {
+                    const tokenValue = line.substring(line.indexOf('_authToken=') + 11).trim();
+                    const match = tokenValue.match(/^\$\{([^}]+)\}$/);
+
+                    if (match) {
+                        const envVarName = match[1];
+                        if (process.env[envVarName] && process.env[envVarName].trim() !== '') {
+                            hasAuth = true;
+                        } else {
+                            console.error(`❌ Build Failed: The environment variable '${envVarName}' is not set or empty.`);
+                            process.exit(1);
+                        }
+                    } else if (tokenValue !== '') {
+                        hasAuth = true;
+                    }
+                }
             }
         }
+        if (hasAuth) break;
     }
 
     if (!hasAuth) {
