@@ -1,0 +1,41 @@
+name: "Reusable: Dependabot Auto-Merge"
+on:
+  workflow_call:
+    secrets:
+      CHAT_WEBHOOK_URL:
+        required: false
+
+jobs:
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Auto-Merge Minor & Patch Updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --squash "$PR_URL"
+
+      - name: Alert on Major Update
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major' && github.event.action == 'opened'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          TITLE: ${{ github.event.pull_request.title }}
+          WEBHOOK: ${{ secrets.CHAT_WEBHOOK_URL }}
+        run: |
+          if [ -n "$WEBHOOK" ]; then
+            TEXT=$(printf '🚨 *Major Update Alert*\nDependabot created a major update PR that requires manual review:\n• %s\n%s' "$TITLE" "$PR_URL")
+            jq -n --arg text "$TEXT" '{text: $text}' | curl -sf -X POST -H 'Content-Type: application/json' -d @- "$WEBHOOK"
+          fi

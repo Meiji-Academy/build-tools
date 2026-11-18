@@ -1,0 +1,16 @@
+name: Dependabot Stale Escalation
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # 00:00 UTC equals 09:00 JST on Mondays
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  call-stale-escalation:
+    uses: meiji-academy/build-tools/.github/workflows/reusable-dependabot-stale.yml@main
+    secrets:
+      CHAT_WEBHOOK_URL: ${{ secrets.PROJECT_CHAT_WEBHOOK || secrets.ORG_DEFAULT_DEPENDENCY_CHAT_WEBHOOK }}
