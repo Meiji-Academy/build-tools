@@ -23,6 +23,7 @@ function checkEnv() {
 
     const npmrcPaths = [projectNpmrc, userConfigNpmrc, homeNpmrc].filter(Boolean);
     let hasAuth = false;
+    const missingEnvVars = new Set();
 
     for (const rcPath of npmrcPaths) {
         if (fs.existsSync(rcPath)) {
@@ -30,20 +31,29 @@ function checkEnv() {
             const lines = content.split('\n');
 
             for (const line of lines) {
-                if (line.includes('npm.pkg.github.com') && line.includes('_authToken=')) {
-                    const tokenValue = line.substring(line.indexOf('_authToken=') + 11).trim();
-                    const match = tokenValue.match(/^\$\{([^}]+)\}$/);
+                const trimmedLine = line.trim();
+
+                if (trimmedLine.startsWith('#') || trimmedLine.startsWith(';')) continue;
+
+                if (trimmedLine.startsWith('//npm.pkg.github.com/') && trimmedLine.includes('_authToken')) {
+                    const match = trimmedLine.match(/_authToken\s*=\s*(.*)$/);
 
                     if (match) {
-                        const envVarName = match[1];
-                        if (process.env[envVarName] && process.env[envVarName].trim() !== '') {
+                        let tokenValue = match[1].trim().replace(/^["']|["']$/g, '');
+                        const placeholderMatch = tokenValue.match(/^\$\{([^}]+)\}$/);
+
+                        if (placeholderMatch) {
+                            const envVarName = placeholderMatch[1];
+                            if (process.env[envVarName] && process.env[envVarName].trim() !== '') {
+                                hasAuth = true;
+                                break;
+                            } else {
+                                missingEnvVars.add(envVarName);
+                            }
+                        } else if (tokenValue !== '') {
                             hasAuth = true;
-                        } else {
-                            console.error(`❌ Build Failed: The environment variable '${envVarName}' is not set or empty.`);
-                            process.exit(1);
+                            break;
                         }
-                    } else if (tokenValue !== '') {
-                        hasAuth = true;
                     }
                 }
             }
@@ -52,8 +62,13 @@ function checkEnv() {
     }
 
     if (!hasAuth) {
-        console.error("❌ Build Failed: Missing GitHub Packages credentials for @meiji-academy scope.");
-        console.error("Please run 'npm login --scope=@meiji-academy --registry=https://npm.pkg.github.com' or configure your .npmrc file.");
+        if (missingEnvVars.size > 0) {
+            const vars = Array.from(missingEnvVars).join(', ');
+            console.error(`❌ Build Failed: GitHub Packages authentication failed. The following environment variable(s) were empty or not set: ${vars}`);
+        } else {
+            console.error("❌ Build Failed: Missing GitHub Packages credentials for @meiji-academy scope.");
+            console.error("Please run 'npm login --scope=@meiji-academy --registry=https://npm.pkg.github.com' or configure your .npmrc file.");
+        }
         process.exit(1);
     }
 }
